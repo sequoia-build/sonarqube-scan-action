@@ -22,6 +22,13 @@ if [[ -f "${INPUT_PROJECTBASEDIR%/}build.gradle" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${INPUT_PROJECTBASEDIR%/}sonar-project.properties"]]; then
+  echo "No sonar-projects.properties defined. Inferring sonar project key and name. Use workflow specific input args to override"
+  GITHUB_ORG=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f 1)
+  GITHUB_REPO=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f 2)
+  ADDL_ARGS="-Dsonar.projectKey=${GITHUB_ORG} -Dsonar.projectName=${GITHUB_REPO}"
+fi
+
 unset JAVA_HOME
 
-sonar-scanner -Dsonar.projectBaseDir=${INPUT_PROJECTBASEDIR} ${INPUT_ARGS}
+sonar-scanner -Dsonar.projectBaseDir=${INPUT_PROJECTBASEDIR} ${ADDL_ARGS} ${INPUT_ARGS}
